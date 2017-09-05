@@ -89,7 +89,7 @@ void GenericMediaServer::deleteServerMediaSession(char const* streamName) {
 
 GenericMediaServer
 ::GenericMediaServer(UsageEnvironment& env, int ourSocket, Port ourPort,
-		     unsigned reclamationSeconds)
+    unsigned reclamationSeconds)
   : Medium(env),
     fServerSocket(ourSocket), fServerPort(ourPort), fReclamationSeconds(reclamationSeconds),
     fServerMediaSessions(HashTable::create(STRING_HASH_KEYS)),
@@ -273,7 +273,7 @@ GenericMediaServer::ClientSession::~ClientSession() {
   if (fOurServerMediaSession != NULL) {
     fOurServerMediaSession->decrementReferenceCount();
     if (fOurServerMediaSession->referenceCount() == 0
-	&& fOurServerMediaSession->deleteWhenUnreferenced()) {
+        && fOurServerMediaSession->deleteWhenUnreferenced()) {
       fOurServer.removeServerMediaSession(fOurServerMediaSession);
       fOurServerMediaSession = NULL;
     }
@@ -291,8 +291,8 @@ void GenericMediaServer::ClientSession::noteLiveness() {
 
   if (fOurServer.fReclamationSeconds > 0) {
     envir().taskScheduler().rescheduleDelayedTask(fLivenessCheckTask,
-						  fOurServer.fReclamationSeconds*1000000,
-						  (TaskFunc*)livenessTimeoutTask, this);
+        fOurServer.fReclamationSeconds * 1000000,
+        (TaskFunc*) livenessTimeoutTask, this);
   }
 }
 
@@ -345,9 +345,9 @@ GenericMediaServer::lookupClientSession(char const* sessionIdStr) {
 ////////// ServerMediaSessionIterator implementation //////////
 
 GenericMediaServer::ServerMediaSessionIterator
-::ServerMediaSessionIterator(GenericMediaServer& server)
-  : fOurIterator((server.fServerMediaSessions == NULL)
-		 ? NULL : HashTable::Iterator::create(*server.fServerMediaSessions)) {
+::ServerMediaSessionIterator(GenericMediaServer& server) :
+    fOurIterator((server.fServerMediaSessions == NULL) ?
+            NULL : HashTable::Iterator::create(*server.fServerMediaSessions)) {
 }
 
 GenericMediaServer::ServerMediaSessionIterator::~ServerMediaSessionIterator() {
@@ -365,8 +365,8 @@ ServerMediaSession* GenericMediaServer::ServerMediaSessionIterator::next() {
 ////////// UserAuthenticationDatabase implementation //////////
 
 UserAuthenticationDatabase::UserAuthenticationDatabase(char const* realm,
-						       Boolean passwordsAreMD5)
-  : fTable(HashTable::create(STRING_HASH_KEYS)),
+    Boolean passwordsAreMD5) :
+    fTable(HashTable::create(STRING_HASH_KEYS)),
     fRealm(strDup(realm == NULL ? "LIVE555 Streaming Media" : realm)),
     fPasswordsAreMD5(passwordsAreMD5) {
 }
@@ -383,7 +383,7 @@ UserAuthenticationDatabase::~UserAuthenticationDatabase() {
 }
 
 void UserAuthenticationDatabase::addUserRecord(char const* username,
-					       char const* password) {
+    char const* password) {
   fTable->Add(username, (void*)(strDup(password)));
 }
 

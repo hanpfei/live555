@@ -69,10 +69,10 @@ private:
 
 H264or5VideoRTPSink
 ::H264or5VideoRTPSink(int hNumber,
-		      UsageEnvironment& env, Groupsock* RTPgs, unsigned char rtpPayloadFormat,
-		      u_int8_t const* vps, unsigned vpsSize,
-		      u_int8_t const* sps, unsigned spsSize,
-		      u_int8_t const* pps, unsigned ppsSize)
+    UsageEnvironment& env, Groupsock* RTPgs, unsigned char rtpPayloadFormat,
+    u_int8_t const* vps, unsigned vpsSize,
+    u_int8_t const* sps, unsigned spsSize,
+    u_int8_t const* pps, unsigned ppsSize)
   : VideoRTPSink(env, RTPgs, rtpPayloadFormat, 90000, hNumber == 264 ? "H264" : "H265"),
     fHNumber(hNumber), fOurFragmenter(NULL), fFmtpSDPLine(NULL) {
   if (vps != NULL) {
@@ -117,7 +117,7 @@ Boolean H264or5VideoRTPSink::continuePlaying() {
   // If not, create it now:
   if (fOurFragmenter == NULL) {
     fOurFragmenter = new H264or5Fragmenter(fHNumber, envir(), fSource, OutPacketBuffer::maxSize,
-					   ourMaxPacketSize() - 12/*RTP hdr size*/);
+        ourMaxPacketSize() - 12/*RTP hdr size*/);
   } else {
     fOurFragmenter->reassignInputSource(fSource);
   }
@@ -128,10 +128,10 @@ Boolean H264or5VideoRTPSink::continuePlaying() {
 }
 
 void H264or5VideoRTPSink::doSpecialFrameHandling(unsigned /*fragmentationOffset*/,
-						 unsigned char* /*frameStart*/,
-						 unsigned /*numBytesInFrame*/,
-						 struct timeval framePresentationTime,
-						 unsigned /*numRemainingBytes*/) {
+    unsigned char* /*frameStart*/,
+    unsigned /*numBytesInFrame*/,
+    struct timeval framePresentationTime,
+    unsigned /*numRemainingBytes*/) {
   // Set the RTP 'M' (marker) bit iff
   // 1/ The most recently delivered fragment was the end of (or the only fragment of) an NAL unit, and
   // 2/ This NAL unit was the last NAL unit of an 'access unit' (i.e. video frame).
@@ -139,8 +139,8 @@ void H264or5VideoRTPSink::doSpecialFrameHandling(unsigned /*fragmentationOffset*
     H264or5VideoStreamFramer* framerSource
       = (H264or5VideoStreamFramer*)(fOurFragmenter->inputSource());
     // This relies on our fragmenter's source being a "H264or5VideoStreamFramer".
-    if (((H264or5Fragmenter*)fOurFragmenter)->lastFragmentCompletedNALUnit()
-	&& framerSource != NULL && framerSource->pictureEndMarker()) {
+    if (((H264or5Fragmenter*) fOurFragmenter)->lastFragmentCompletedNALUnit()
+        && framerSource != NULL && framerSource->pictureEndMarker()) {
       setMarkerBit();
       framerSource->pictureEndMarker() = False;
     }
@@ -151,7 +151,7 @@ void H264or5VideoRTPSink::doSpecialFrameHandling(unsigned /*fragmentationOffset*
 
 Boolean H264or5VideoRTPSink
 ::frameCanAppearAfterPacketStart(unsigned char const* /*frameStart*/,
-				 unsigned /*numBytesInFrame*/) const {
+    unsigned /*numBytesInFrame*/) const {
   return False;
 }
 
@@ -159,8 +159,8 @@ Boolean H264or5VideoRTPSink
 ////////// H264or5Fragmenter implementation //////////
 
 H264or5Fragmenter::H264or5Fragmenter(int hNumber,
-				     UsageEnvironment& env, FramedSource* inputSource,
-				     unsigned inputBufferMax, unsigned maxOutputPacketSize)
+    UsageEnvironment& env, FramedSource* inputSource,
+    unsigned inputBufferMax, unsigned maxOutputPacketSize)
   : FramedFilter(env, inputSource),
     fHNumber(hNumber),
     fInputBufferSize(inputBufferMax+1), fMaxOutputPacketSize(maxOutputPacketSize) {
@@ -177,8 +177,8 @@ void H264or5Fragmenter::doGetNextFrame() {
   if (fNumValidDataBytes == 1) {
     // We have no NAL unit data currently in the buffer.  Read a new one:
     fInputSource->getNextFrame(&fInputBuffer[1], fInputBufferSize - 1,
-			       afterGettingFrame, this,
-			       FramedSource::handleClosure, this);
+        afterGettingFrame, this,
+        FramedSource::handleClosure, this);
   } else {
     // We have NAL unit data in the buffer.  There are three cases to consider:
     // 1. There is a new NAL unit in the buffer, and it's small enough to deliver
