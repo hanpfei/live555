@@ -321,7 +321,7 @@ GenericMediaServer::ClientSession* GenericMediaServer::createNewClientSessionWit
   do {
     sessionId = (u_int32_t)our_random32();
     snprintf(sessionIdStr, sizeof sessionIdStr, "%08X", sessionId);
-  } while (sessionId == 0 || lookupClientSession(sessionIdStr) != NULL);
+  } while (sessionId == 0 || lookupClientSession(sessionId) != NULL);
 
   ClientSession* clientSession = createNewClientSession(sessionId);
   if (clientSession != NULL) fClientSessions->Add(sessionIdStr, clientSession);
