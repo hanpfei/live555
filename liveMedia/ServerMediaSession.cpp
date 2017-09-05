@@ -125,15 +125,15 @@ void ServerMediaSession::testScaleFactor(float& scale) {
       bestDistanceTo1 = (float)fabs(ssscale - 1.0f);
     } else {
       if (ssscale < minSSScale) {
-	minSSScale = ssscale;
+        minSSScale = ssscale;
       } else if (ssscale > maxSSScale) {
-	maxSSScale = ssscale;
+        maxSSScale = ssscale;
       }
 
-      float distanceTo1 = (float)fabs(ssscale - 1.0f);
+      float distanceTo1 = (float) fabs(ssscale - 1.0f);
       if (distanceTo1 < bestDistanceTo1) {
-	bestSSScale = ssscale;
-	bestDistanceTo1 = distanceTo1;
+        bestSSScale = ssscale;
+        bestDistanceTo1 = distanceTo1;
       }
     }
   }
@@ -181,9 +181,9 @@ float ServerMediaSession::duration() const {
     if (subsession == fSubsessionsHead) { // this is the first subsession
       minSubsessionDuration = maxSubsessionDuration = ssduration;
     } else if (ssduration < minSubsessionDuration) {
-	minSubsessionDuration = ssduration;
+      minSubsessionDuration = ssduration;
     } else if (ssduration > maxSubsessionDuration) {
-	maxSubsessionDuration = ssduration;
+      maxSubsessionDuration = ssduration;
     }
   }
 
@@ -235,8 +235,7 @@ char* ServerMediaSession::generateSDPDescription() {
     // causes correct subsession 'duration()'s to be calculated later.)
     unsigned sdpLength = 0;
     ServerMediaSubsession* subsession;
-    for (subsession = fSubsessionsHead; subsession != NULL;
-	 subsession = subsession->fNext) {
+    for (subsession = fSubsessionsHead; subsession != NULL; subsession = subsession->fNext) {
       char const* sdpLines = subsession->sdpLines();
       if (sdpLines == NULL) continue; // the media's not available
       sdpLength += strlen(sdpLines);
@@ -284,30 +283,32 @@ char* ServerMediaSession::generateSDPDescription() {
     if (sdp == NULL) break;
 
     // Generate the SDP prefix (session-level lines):
-    snprintf(sdp, sdpLength, sdpPrefixFmt,
-	     fCreationTime.tv_sec, fCreationTime.tv_usec, // o= <session id>
-	     1, // o= <version> // (needs to change if params are modified)
-	     ipAddressStr.val(), // o= <address>
-	     fDescriptionSDPString, // s= <description>
-	     fInfoSDPString, // i= <info>
-	     libNameStr, libVersionStr, // a=tool:
-	     sourceFilterLine, // a=source-filter: incl (if a SSM session)
-	     rangeLine, // a=range: line
-	     fDescriptionSDPString, // a=x-qt-text-nam: line
-	     fInfoSDPString, // a=x-qt-text-inf: line
-	     fMiscSDPLines); // miscellaneous session SDP lines (if any)
+    snprintf(sdp, sdpLength, sdpPrefixFmt, fCreationTime.tv_sec,
+        fCreationTime.tv_usec, // o= <session id>
+        1, // o= <version> // (needs to change if params are modified)
+        ipAddressStr.val(), // o= <address>
+        fDescriptionSDPString, // s= <description>
+        fInfoSDPString, // i= <info>
+        libNameStr, libVersionStr, // a=tool:
+        sourceFilterLine, // a=source-filter: incl (if a SSM session)
+        rangeLine, // a=range: line
+        fDescriptionSDPString, // a=x-qt-text-nam: line
+        fInfoSDPString, // a=x-qt-text-inf: line
+        fMiscSDPLines); // miscellaneous session SDP lines (if any)
 
     // Then, add the (media-level) lines for each subsession:
     char* mediaSDP = sdp;
-    for (subsession = fSubsessionsHead; subsession != NULL;
-	 subsession = subsession->fNext) {
+    for (subsession = fSubsessionsHead; subsession != NULL; subsession =
+        subsession->fNext) {
       unsigned mediaSDPLength = strlen(mediaSDP);
       mediaSDP += mediaSDPLength;
       sdpLength -= mediaSDPLength;
-      if (sdpLength <= 1) break; // the SDP has somehow become too long
+      if (sdpLength <= 1)
+        break; // the SDP has somehow become too long
 
       char const* sdpLines = subsession->sdpLines();
-      if (sdpLines != NULL) snprintf(mediaSDP, sdpLength, "%s", sdpLines);
+      if (sdpLines != NULL)
+        snprintf(mediaSDP, sdpLength, "%s", sdpLines);
     }
   } while (0);
 
