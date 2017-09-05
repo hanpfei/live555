@@ -291,8 +291,8 @@ void GenericMediaServer::ClientSession::noteLiveness() {
 
   if (fOurServer.fReclamationSeconds > 0) {
     envir().taskScheduler().rescheduleDelayedTask(fLivenessCheckTask,
-        fOurServer.fReclamationSeconds * 1000000,
-        (TaskFunc*) livenessTimeoutTask, this);
+						  fOurServer.fReclamationSeconds*1000000,
+						  (TaskFunc*)livenessTimeoutTask, this);
   }
 }
 
@@ -321,7 +321,7 @@ GenericMediaServer::ClientSession* GenericMediaServer::createNewClientSessionWit
   do {
     sessionId = (u_int32_t)our_random32();
     snprintf(sessionIdStr, sizeof sessionIdStr, "%08X", sessionId);
-  } while (sessionId == 0 || lookupClientSession(sessionId) != NULL);
+  } while (sessionId == 0 || lookupClientSession(sessionIdStr) != NULL);
 
   ClientSession* clientSession = createNewClientSession(sessionId);
   if (clientSession != NULL) fClientSessions->Add(sessionIdStr, clientSession);

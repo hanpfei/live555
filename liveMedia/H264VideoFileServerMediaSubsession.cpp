@@ -112,9 +112,9 @@ FramedSource* H264VideoFileServerMediaSubsession::createNewStreamSource(unsigned
   return H264VideoStreamFramer::createNew(envir(), fileSource);
 }
 
-RTPSink* H264VideoFileServerMediaSubsession::createNewRTPSink(
-    Groupsock* rtpGroupsock,
-    unsigned char rtpPayloadTypeIfDynamic,
-    FramedSource* /*inputSource*/) {
+RTPSink* H264VideoFileServerMediaSubsession
+::createNewRTPSink(Groupsock* rtpGroupsock,
+		   unsigned char rtpPayloadTypeIfDynamic,
+		   FramedSource* /*inputSource*/) {
   return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
 }

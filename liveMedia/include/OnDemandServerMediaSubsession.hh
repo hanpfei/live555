@@ -45,36 +45,35 @@ protected: // we're a virtual base class
 protected: // redefined virtual functions
   virtual char const* sdpLines();
   virtual void getStreamParameters(unsigned clientSessionId,
-      netAddressBits clientAddress,
-      Port const& clientRTPPort,
-      Port const& clientRTCPPort,
-      int tcpSocketNum,
-      unsigned char rtpChannelId,
-      unsigned char rtcpChannelId,
-      netAddressBits& destinationAddress,
-      u_int8_t& destinationTTL,
-      Boolean& isMulticast,
-      Port& serverRTPPort,
-      Port& serverRTCPPort,
-      void*& streamToken);
-  virtual void startStream(unsigned clientSessionId,
-      void* streamToken,
-      TaskFunc* rtcpRRHandler,
-      void* rtcpRRHandlerClientData,
-      unsigned short& rtpSeqNum,
-      unsigned& rtpTimestamp,
-      ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
-      void* serverRequestAlternativeByteHandlerClientData);
+				   netAddressBits clientAddress,
+                                   Port const& clientRTPPort,
+                                   Port const& clientRTCPPort,
+				   int tcpSocketNum,
+                                   unsigned char rtpChannelId,
+                                   unsigned char rtcpChannelId,
+                                   netAddressBits& destinationAddress,
+				   u_int8_t& destinationTTL,
+                                   Boolean& isMulticast,
+                                   Port& serverRTPPort,
+                                   Port& serverRTCPPort,
+                                   void*& streamToken);
+  virtual void startStream(unsigned clientSessionId, void* streamToken,
+			   TaskFunc* rtcpRRHandler,
+			   void* rtcpRRHandlerClientData,
+			   unsigned short& rtpSeqNum,
+                           unsigned& rtpTimestamp,
+			   ServerRequestAlternativeByteHandler* serverRequestAlternativeByteHandler,
+                           void* serverRequestAlternativeByteHandlerClientData);
   virtual void pauseStream(unsigned clientSessionId, void* streamToken);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, double& seekNPT, double streamDuration, u_int64_t& numBytes);
   virtual void seekStream(unsigned clientSessionId, void* streamToken, char*& absStart, char*& absEnd);
   virtual void nullSeekStream(unsigned clientSessionId, void* streamToken,
-      double streamEndTime, u_int64_t& numBytes);
+			      double streamEndTime, u_int64_t& numBytes);
   virtual void setStreamScale(unsigned clientSessionId, void* streamToken, float scale);
   virtual float getCurrentNPT(void* streamToken);
   virtual FramedSource* getStreamSource(void* streamToken);
   virtual void getRTPSinkandRTCP(void* streamToken,
-      RTPSink const*& rtpSink, RTCPInstance const*& rtcp);
+				 RTPSink const*& rtpSink, RTCPInstance const*& rtcp);
   virtual void deleteStream(unsigned clientSessionId, void*& streamToken);
 
 protected: // new virtual functions, possibly redefined by subclasses
@@ -95,11 +94,11 @@ protected: // new virtual functions, possibly redefined by subclasses
 
 protected: // new virtual functions, defined by all subclasses
   virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
-      unsigned& estBitrate) = 0;
-  // "estBitrate" is the stream's estimated bitrate, in kbps
+					      unsigned& estBitrate) = 0;
+      // "estBitrate" is the stream's estimated bitrate, in kbps
   virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
-      unsigned char rtpPayloadTypeIfDynamic,
-      FramedSource* inputSource) = 0;
+				    unsigned char rtpPayloadTypeIfDynamic,
+				    FramedSource* inputSource) = 0;
 
 protected: // new virtual functions, may be redefined by a subclass:
   virtual Groupsock* createGroupsock(struct in_addr const& addr, Port port);
