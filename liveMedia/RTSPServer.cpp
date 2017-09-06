@@ -1534,9 +1534,9 @@ void RTSPServer::RTSPClientSession
   } else if (urlPreSuffix[0] != '\0' && urlSuffix[0] != '\0') {
     // Aggregated operation, if <urlPreSuffix>/<urlSuffix> is the session (stream) name:
     unsigned const urlPreSuffixLen = strlen(urlPreSuffix);
-    if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0 &&
-	fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' &&
-	strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen+1], urlSuffix) == 0) {
+    if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0
+        && fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/'
+        && strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen + 1], urlSuffix) == 0) {
       subsession = NULL;
     } else {
       ourClientConnection->handleCmd_notFound();
@@ -1566,11 +1566,11 @@ void RTSPServer::RTSPClientSession
   unsigned i;
   for (i = 0; i < fNumStreamStates; ++i) {
     if (subsession == NULL /* means: aggregated operation */
-	|| subsession == fStreamStates[i].subsession) {
+    || subsession == fStreamStates[i].subsession) {
       if (fStreamStates[i].subsession != NULL) {
-	fOurRTSPServer.unnoteTCPStreamingOnSocket(fStreamStates[i].tcpSocketNum, this, i);
-	fStreamStates[i].subsession->deleteStream(fOurSessionId, fStreamStates[i].streamToken);
-	fStreamStates[i].subsession = NULL;
+        fOurRTSPServer.unnoteTCPStreamingOnSocket(fStreamStates[i].tcpSocketNum, this, i);
+        fStreamStates[i].subsession->deleteStream(fOurSessionId, fStreamStates[i].streamToken);
+        fStreamStates[i].subsession = NULL;
       }
     }
   }
@@ -1802,12 +1802,12 @@ void RTSPServer::RTSPClientSession
 
 void RTSPServer::RTSPClientSession
 ::handleCmd_PAUSE(RTSPServer::RTSPClientConnection* ourClientConnection,
-		  ServerMediaSubsession* subsession) {
+    ServerMediaSubsession* subsession) {
   for (unsigned i = 0; i < fNumStreamStates; ++i) {
     if (subsession == NULL /* means: aggregated operation */
-	|| subsession == fStreamStates[i].subsession) {
+    || subsession == fStreamStates[i].subsession) {
       if (fStreamStates[i].subsession != NULL) {
-	fStreamStates[i].subsession->pauseStream(fOurSessionId, fStreamStates[i].streamToken);
+        fStreamStates[i].subsession->pauseStream(fOurSessionId, fStreamStates[i].streamToken);
       }
     }
   }
@@ -1817,7 +1817,7 @@ void RTSPServer::RTSPClientSession
 
 void RTSPServer::RTSPClientSession
 ::handleCmd_GET_PARAMETER(RTSPServer::RTSPClientConnection* ourClientConnection,
-			  ServerMediaSubsession* /*subsession*/, char const* /*fullRequestStr*/) {
+    ServerMediaSubsession* /*subsession*/, char const* /*fullRequestStr*/) {
   // By default, we implement "GET_PARAMETER" just as a 'keep alive', and send back a dummy response.
   // (If you want to handle "GET_PARAMETER" properly, you can do so by defining a subclass of "RTSPServer"
   // and "RTSPServer::RTSPClientSession", and then reimplement this virtual function in your subclass.)

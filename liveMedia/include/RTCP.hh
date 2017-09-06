@@ -106,9 +106,8 @@ public:
     // hacks to allow sending RTP over TCP (RFC 2236, section 10.12)
 
   void setAuxilliaryReadHandler(AuxHandlerFunc* handlerFunc,
-                                void* handlerClientData) {
-    fRTCPInterface.setAuxilliaryReadHandler(handlerFunc,
-					    handlerClientData);
+      void* handlerClientData) {
+    fRTCPInterface.setAuxilliaryReadHandler(handlerFunc, handlerClientData);
   }
 
   void injectReport(u_int8_t const* packet, unsigned packetSize, struct sockaddr_in const& fromAddress);
@@ -123,7 +122,7 @@ protected:
   virtual ~RTCPInstance();
 
   virtual void noteArrivingRR(struct sockaddr_in const& fromAddressAndPort,
-			      int tcpSocketNum, unsigned char tcpStreamChannelId);
+      int tcpSocketNum, unsigned char tcpStreamChannelId);
 
   void incomingReportHandler1();
 
@@ -136,7 +135,7 @@ private:
     void addSR();
     void addRR();
       void enqueueCommonReportPrefix(unsigned char packetType, u_int32_t SSRC,
-				     unsigned numExtraWords = 0);
+          unsigned numExtraWords = 0);
       void enqueueCommonReportSuffix();
         void enqueueReportBlock(RTPReceptionStats* receptionStats);
   void addSDES();
@@ -149,7 +148,7 @@ private:
 
   static void incomingReportHandler(RTCPInstance* instance, int /*mask*/);
   void processIncomingReport(unsigned packetSize, struct sockaddr_in const& fromAddressAndPort,
-			     int tcpSocketNum, unsigned char tcpStreamChannelId);
+      int tcpSocketNum, unsigned char tcpStreamChannelId);
   void onReceive(int typeOfPacket, int totPacketSize, u_int32_t ssrc);
 
 private:

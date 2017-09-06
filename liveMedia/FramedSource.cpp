@@ -81,15 +81,15 @@ void FramedSource::getNextFrame(unsigned char* to, unsigned maxSize,
 void FramedSource::afterGetting(FramedSource* source) {
   source->nextTask() = NULL;
   source->fIsCurrentlyAwaitingData = False;
-      // indicates that we can be read again
-      // Note that this needs to be done here, in case the "fAfterFunc"
-      // called below tries to read another frame (which it usually will)
+  // indicates that we can be read again
+  // Note that this needs to be done here, in case the "fAfterFunc"
+  // called below tries to read another frame (which it usually will)
 
   if (source->fAfterGettingFunc != NULL) {
     (*(source->fAfterGettingFunc))(source->fAfterGettingClientData,
-				   source->fFrameSize, source->fNumTruncatedBytes,
-				   source->fPresentationTime,
-				   source->fDurationInMicroseconds);
+        source->fFrameSize, source->fNumTruncatedBytes,
+        source->fPresentationTime,
+        source->fDurationInMicroseconds);
   }
 }
 

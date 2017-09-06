@@ -33,7 +33,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class MPEGVideoStreamParser: public StreamParser {
 public:
   MPEGVideoStreamParser(MPEGVideoStreamFramer* usingSource,
-			FramedSource* inputSource);
+      FramedSource* inputSource);
   virtual ~MPEGVideoStreamParser();
 
 public:
@@ -72,33 +72,33 @@ protected:
 
   // Save data until we see a sync word (0x000001xx):
   void saveToNextCode(u_int32_t& curWord) {
-    saveByte(curWord>>24);
-    curWord = (curWord<<8)|get1Byte();
-    while ((curWord&0xFFFFFF00) != 0x00000100) {
-      if ((unsigned)(curWord&0xFF) > 1) {
-	// a sync word definitely doesn't begin anywhere in "curWord"
-	save4Bytes(curWord);
-	curWord = get4Bytes();
+    saveByte(curWord >> 24);
+    curWord = (curWord << 8) | get1Byte();
+    while ((curWord & 0xFFFFFF00) != 0x00000100) {
+      if ((unsigned) (curWord & 0xFF) > 1) {
+        // a sync word definitely doesn't begin anywhere in "curWord"
+        save4Bytes(curWord);
+        curWord = get4Bytes();
       } else {
-	// a sync word might begin in "curWord", although not at its start
-	saveByte(curWord>>24);
-	unsigned char newByte = get1Byte();
-	curWord = (curWord<<8)|newByte;
+        // a sync word might begin in "curWord", although not at its start
+        saveByte(curWord >> 24);
+        unsigned char newByte = get1Byte();
+        curWord = (curWord << 8) | newByte;
       }
     }
   }
 
   // Skip data until we see a sync word (0x000001xx):
   void skipToNextCode(u_int32_t& curWord) {
-    curWord = (curWord<<8)|get1Byte();
-    while ((curWord&0xFFFFFF00) != 0x00000100) {
-      if ((unsigned)(curWord&0xFF) > 1) {
-	// a sync word definitely doesn't begin anywhere in "curWord"
-	curWord = get4Bytes();
+    curWord = (curWord << 8) | get1Byte();
+    while ((curWord & 0xFFFFFF00) != 0x00000100) {
+      if ((unsigned) (curWord & 0xFF) > 1) {
+        // a sync word definitely doesn't begin anywhere in "curWord"
+        curWord = get4Bytes();
       } else {
-	// a sync word might begin in "curWord", although not at its start
-	unsigned char newByte = get1Byte();
-	curWord = (curWord<<8)|newByte;
+        // a sync word might begin in "curWord", although not at its start
+        unsigned char newByte = get1Byte();
+        curWord = (curWord << 8) | newByte;
       }
     }
   }

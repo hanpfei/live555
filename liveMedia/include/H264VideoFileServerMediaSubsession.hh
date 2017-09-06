@@ -37,20 +37,20 @@ public:
 
 protected:
   H264VideoFileServerMediaSubsession(UsageEnvironment& env,
-				      char const* fileName, Boolean reuseFirstSource);
-      // called only by createNew();
+      char const* fileName, Boolean reuseFirstSource);
+  // called only by createNew();
   virtual ~H264VideoFileServerMediaSubsession();
 
   void setDoneFlag() { fDoneFlag = ~0; }
 
 protected: // redefined virtual functions
   virtual char const* getAuxSDPLine(RTPSink* rtpSink,
-				    FramedSource* inputSource);
+      FramedSource* inputSource);
   virtual FramedSource* createNewStreamSource(unsigned clientSessionId,
-					      unsigned& estBitrate);
+      unsigned& estBitrate);
   virtual RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
-                                    unsigned char rtpPayloadTypeIfDynamic,
-				    FramedSource* inputSource);
+      unsigned char rtpPayloadTypeIfDynamic,
+      FramedSource* inputSource);
 
 private:
   char* fAuxSDPLine;
