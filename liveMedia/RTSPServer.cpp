@@ -1534,9 +1534,9 @@ void RTSPServer::RTSPClientSession
   } else if (urlPreSuffix[0] != '\0' && urlSuffix[0] != '\0') {
     // Aggregated operation, if <urlPreSuffix>/<urlSuffix> is the session (stream) name:
     unsigned const urlPreSuffixLen = strlen(urlPreSuffix);
-    if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0
-        && fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/'
-        && strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen + 1], urlSuffix) == 0) {
+    if (strncmp(fOurServerMediaSession->streamName(), urlPreSuffix, urlPreSuffixLen) == 0 &&
+        fOurServerMediaSession->streamName()[urlPreSuffixLen] == '/' &&
+        strcmp(&(fOurServerMediaSession->streamName())[urlPreSuffixLen + 1], urlSuffix) == 0) {
       subsession = NULL;
     } else {
       ourClientConnection->handleCmd_notFound();

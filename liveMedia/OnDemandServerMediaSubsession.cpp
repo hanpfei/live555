@@ -83,8 +83,7 @@ OnDemandServerMediaSubsession::sdpLines() {
 }
 
 void OnDemandServerMediaSubsession
-::getStreamParameters(
-    unsigned clientSessionId,
+::getStreamParameters(unsigned clientSessionId,
     netAddressBits clientAddress,
     Port const& clientRTPPort,
     Port const& clientRTCPPort,
@@ -131,8 +130,7 @@ void OnDemandServerMediaSubsession
 
           serverRTPPort = serverPortNum;
           rtpGroupsock = createGroupsock(dummyAddr, serverRTPPort);
-          if (rtpGroupsock->socketNum() >= 0)
-            break; // success
+          if (rtpGroupsock->socketNum() >= 0) break; // success
         }
 
         udpSink = BasicUDPSink::createNew(envir(), rtpGroupsock);
@@ -189,8 +187,9 @@ void OnDemandServerMediaSubsession
     }
 
     // Set up the state of the stream.  The stream will get started later:
-    streamToken = fLastStreamToken = new StreamState(*this, serverRTPPort,
-        serverRTCPPort, rtpSink, udpSink, streamBitrate, mediaSource,
+    streamToken = fLastStreamToken
+      = new StreamState(*this, serverRTPPort, serverRTCPPort, rtpSink, udpSink,
+        streamBitrate, mediaSource,
         rtpGroupsock, rtcpGroupsock);
   }
 
