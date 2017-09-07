@@ -389,15 +389,15 @@ static void lookForHeader(char const* headerName, char const* source, unsigned s
       // We found the header.  Skip over any whitespace, then copy the rest of the line to "resultStr":
       for (i += headerNameLen+1; i < (int)sourceLen && (source[i] == ' ' || source[i] == '\t'); ++i) {}
       for (unsigned j = i; j < sourceLen; ++j) {
-	if (source[j] == '\r' || source[j] == '\n') {
-	  // We've found the end of the line.  Copy it to the result (if it will fit):
-	  if (j-i+1 > resultMaxSize) break;
-	  char const* resultSource = &source[i];
-	  char const* resultSourceEnd = &source[j];
-	  while (resultSource < resultSourceEnd) *resultStr++ = *resultSource++;
-	  *resultStr = '\0';
-	  break;
-	}
+        if (source[j] == '\r' || source[j] == '\n') {
+          // We've found the end of the line.  Copy it to the result (if it will fit):
+          if (j - i + 1 > resultMaxSize) break;
+          char const* resultSource = &source[i];
+          char const* resultSourceEnd = &source[j];
+          while (resultSource < resultSourceEnd) *resultStr++ = *resultSource++;
+          *resultStr = '\0';
+          break;
+        }
       }
     }
   }
@@ -1185,8 +1185,8 @@ static void parseTransportHeader(char const* buf,
   while (sscanf(fields, "%[^;\r\n]", field) == 1) {
     if (strcmp(field, "RTP/AVP/TCP") == 0) {
       streamingMode = RTP_TCP;
-    } else if (strcmp(field, "RAW/RAW/UDP") == 0 ||
-	       strcmp(field, "MP2T/H2221/UDP") == 0) {
+    } else if (strcmp(field, "RAW/RAW/UDP") == 0
+        || strcmp(field, "MP2T/H2221/UDP") == 0) {
       streamingMode = RAW_UDP;
       streamingModeString = strDup(field);
     } else if (_strncasecmp(field, "destination=", 12) == 0) {
@@ -1225,7 +1225,7 @@ static Boolean parsePlayNowHeader(char const* buf) {
 
 void RTSPServer::RTSPClientSession
 ::handleCmd_SETUP(RTSPServer::RTSPClientConnection* ourClientConnection,
-		  char const* urlPreSuffix, char const* urlSuffix, char const* fullRequestStr) {
+    char const* urlPreSuffix, char const* urlSuffix, char const* fullRequestStr) {
   // Normally, "urlPreSuffix" should be the session (stream) name, and "urlSuffix" should be the subsession (track) name.
   // However (being "liberal in what we accept"), we also handle 'aggregate' SETUP requests (i.e., without a track name),
   // in the special case where we have only a single track.  I.e., in this case, we also handle:
@@ -1242,11 +1242,11 @@ void RTSPServer::RTSPClientSession
     if (sms == NULL) {
       // Check for the special case (noted above), before we give up:
       if (urlPreSuffix[0] == '\0') {
-	streamName = urlSuffix;
+        streamName = urlSuffix;
       } else {
-	concatenatedStreamName = new char[strlen(urlPreSuffix) + strlen(urlSuffix) + 2]; // allow for the "/" and the trailing '\0'
-	sprintf(concatenatedStreamName, "%s/%s", urlPreSuffix, urlSuffix);
-	streamName = concatenatedStreamName;
+        concatenatedStreamName = new char[strlen(urlPreSuffix) + strlen(urlSuffix) + 2]; // allow for the "/" and the trailing '\0'
+        sprintf(concatenatedStreamName, "%s/%s", urlPreSuffix, urlSuffix);
+        streamName = concatenatedStreamName;
       }
       trackId = NULL;
       
@@ -1255,22 +1255,22 @@ void RTSPServer::RTSPClientSession
     }
     if (sms == NULL) {
       if (fOurServerMediaSession == NULL) {
-	// The client asked for a stream that doesn't exist (and this session descriptor has not been used before):
-	ourClientConnection->handleCmd_notFound();
+        // The client asked for a stream that doesn't exist (and this session descriptor has not been used before):
+        ourClientConnection->handleCmd_notFound();
       } else {
-	// The client asked for a stream that doesn't exist, but using a stream id for a stream that does exist. Bad request:
-	ourClientConnection->handleCmd_bad();
+        // The client asked for a stream that doesn't exist, but using a stream id for a stream that does exist. Bad request:
+        ourClientConnection->handleCmd_bad();
       }
       break;
     } else {
       if (fOurServerMediaSession == NULL) {
-	// We're accessing the "ServerMediaSession" for the first time.
-	fOurServerMediaSession = sms;
-	fOurServerMediaSession->incrementReferenceCount();
+        // We're accessing the "ServerMediaSession" for the first time.
+        fOurServerMediaSession = sms;
+        fOurServerMediaSession->incrementReferenceCount();
       } else if (sms != fOurServerMediaSession) {
-	// The client asked for a stream that's different from the one originally requested for this stream id.  Bad request:
-	ourClientConnection->handleCmd_bad();
-	break;
+        // The client asked for a stream that's different from the one originally requested for this stream id.  Bad request:
+        ourClientConnection->handleCmd_bad();
+        break;
       }
     }
     
@@ -1282,10 +1282,10 @@ void RTSPServer::RTSPClientSession
       ServerMediaSubsessionIterator iter(*fOurServerMediaSession);
       ServerMediaSubsession* subsession;
       for (unsigned i = 0; i < fNumStreamStates; ++i) {
-	subsession = iter.next();
-	fStreamStates[i].subsession = subsession;
-	fStreamStates[i].tcpSocketNum = -1; // for now; may get set for RTP-over-TCP streaming
-	fStreamStates[i].streamToken = NULL; // for now; it may be changed by the "getStreamParameters()" call that comes later
+        subsession = iter.next();
+        fStreamStates[i].subsession = subsession;
+        fStreamStates[i].tcpSocketNum = -1; // for now; may get set for RTP-over-TCP streaming
+        fStreamStates[i].streamToken = NULL; // for now; it may be changed by the "getStreamParameters()" call that comes later
       }
     }
     
@@ -1294,20 +1294,20 @@ void RTSPServer::RTSPClientSession
     unsigned trackNum;
     if (trackId != NULL && trackId[0] != '\0') { // normal case
       for (trackNum = 0; trackNum < fNumStreamStates; ++trackNum) {
-	subsession = fStreamStates[trackNum].subsession;
-	if (subsession != NULL && strcmp(trackId, subsession->trackId()) == 0) break;
+        subsession = fStreamStates[trackNum].subsession;
+        if (subsession != NULL && strcmp(trackId, subsession->trackId()) == 0) break;
       }
       if (trackNum >= fNumStreamStates) {
-	// The specified track id doesn't exist, so this request fails:
-	ourClientConnection->handleCmd_notFound();
-	break;
+        // The specified track id doesn't exist, so this request fails:
+        ourClientConnection->handleCmd_notFound();
+        break;
       }
     } else {
       // Weird case: there was no track id in the URL.
       // This works only if we have only one subsession:
       if (fNumStreamStates != 1 || fStreamStates[0].subsession == NULL) {
-	ourClientConnection->handleCmd_bad();
-	break;
+        ourClientConnection->handleCmd_bad();
+        break;
       }
       trackNum = 0;
       subsession = fStreamStates[trackNum].subsession;
@@ -1641,7 +1641,7 @@ void RTSPServer::RTSPClientSession
     if (rangeEnd < 0.0) rangeEnd = 0.0;
     else if (rangeEnd > duration) rangeEnd = duration;
     if ((scale > 0.0 && rangeStart > rangeEnd && rangeEnd > 0.0) ||
-	(scale < 0.0 && rangeStart < rangeEnd)) {
+        (scale < 0.0 && rangeStart < rangeEnd)) {
       // "rangeStart" and "rangeEnd" were the wrong way around; swap them:
       double tmp = rangeStart;
       rangeStart = rangeEnd;

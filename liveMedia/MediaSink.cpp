@@ -58,8 +58,8 @@ Boolean MediaSink::sourceIsCompatibleWithUs(MediaSource& source) {
 }
 
 Boolean MediaSink::startPlaying(MediaSource& source,
-				afterPlayingFunc* afterFunc,
-				void* afterClientData) {
+    afterPlayingFunc* afterFunc,
+    void* afterClientData) {
   // Make sure we're not already being played:
   if (fSource != NULL) {
     envir().setResultMsg("This sink is already being played");

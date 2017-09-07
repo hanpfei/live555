@@ -910,7 +910,7 @@ void RTCPInstance::sendBuiltPacket() {
 
 int RTCPInstance::checkNewSSRC() {
   return fKnownMembers->noteMembership(fLastReceivedSSRC,
-				       fOutgoingReportCount);
+      fOutgoingReportCount);
 }
 
 void RTCPInstance::removeLastReceivedSSRC() {

@@ -66,8 +66,8 @@ Boolean MediaSource::isAMRAudioSource() const {
 }
 
 Boolean MediaSource::lookupByName(UsageEnvironment& env,
-				  char const* sourceName,
-				  MediaSource*& resultSource) {
+    char const* sourceName,
+    MediaSource*& resultSource) {
   resultSource = NULL; // unless we succeed
 
   Medium* medium;

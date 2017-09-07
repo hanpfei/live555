@@ -148,8 +148,8 @@ char* RTPSink::rtpmapLine() const {
       + 20 /* max int len */ + strlen(encodingParamsPart);
     char* rtpmapLine = new char[rtpmapFmtSize];
     sprintf(rtpmapLine, rtpmapFmt,
-	    rtpPayloadType(), rtpPayloadFormatName(),
-	    rtpTimestampFrequency(), encodingParamsPart);
+        rtpPayloadType(), rtpPayloadFormatName(),
+        rtpTimestampFrequency(), encodingParamsPart);
     delete[] encodingParamsPart;
 
     return rtpmapLine;

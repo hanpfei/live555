@@ -1002,26 +1002,26 @@ unsigned H264or5VideoStreamParser::parse() {
 	fFirstByteOfNALUnit = next4Bytes>>24;
 	fHaveSeenFirstByteOfNALUnit = True;
       }
-      while (next4Bytes != 0x00000001 && (next4Bytes&0xFFFFFF00) != 0x00000100) {
-	// We save at least some of "next4Bytes".
-	if ((unsigned)(next4Bytes&0xFF) > 1) {
-	  // Common case: 0x00000001 or 0x000001 definitely doesn't begin anywhere in "next4Bytes", so we save all of it:
-	  save4Bytes(next4Bytes);
-	  skipBytes(4);
-	} else {
-	  // Save the first byte, and continue testing the rest:
-	  saveByte(next4Bytes>>24);
-	  skipBytes(1);
-	}
-	setParseState(); // ensures forward progress
-	next4Bytes = test4Bytes();
+      while (next4Bytes != 0x00000001 && (next4Bytes & 0xFFFFFF00) != 0x00000100) {
+        // We save at least some of "next4Bytes".
+        if ((unsigned) (next4Bytes & 0xFF) > 1) {
+          // Common case: 0x00000001 or 0x000001 definitely doesn't begin anywhere in "next4Bytes", so we save all of it:
+          save4Bytes(next4Bytes);
+          skipBytes(4);
+        } else {
+          // Save the first byte, and continue testing the rest:
+          saveByte(next4Bytes >> 24);
+          skipBytes(1);
+        }
+        setParseState(); // ensures forward progress
+        next4Bytes = test4Bytes();
       }
       // Assert: next4Bytes starts with 0x00000001 or 0x000001, and we've saved all previous bytes (forming a complete NAL unit).
       // Skip over these remaining bytes, up until the start of the next NAL unit:
       if (next4Bytes == 0x00000001) {
-	skipBytes(4);
+        skipBytes(4);
       } else {
-	skipBytes(3);
+        skipBytes(3);
       }
     }
 

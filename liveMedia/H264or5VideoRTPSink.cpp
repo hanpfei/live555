@@ -193,7 +193,7 @@ void H264or5Fragmenter::doGetNextFrame() {
 
     if (fMaxSize < fMaxOutputPacketSize) { // shouldn't happen
       envir() << "H264or5Fragmenter::doGetNextFrame(): fMaxSize ("
-	      << fMaxSize << ") is smaller than expected\n";
+          << fMaxSize << ") is smaller than expected\n";
     } else {
       fMaxSize = fMaxOutputPacketSize;
     }
@@ -201,26 +201,26 @@ void H264or5Fragmenter::doGetNextFrame() {
     fLastFragmentCompletedNALUnit = True; // by default
     if (fCurDataOffset == 1) { // case 1 or 2
       if (fNumValidDataBytes - 1 <= fMaxSize) { // case 1
-	memmove(fTo, &fInputBuffer[1], fNumValidDataBytes - 1);
-	fFrameSize = fNumValidDataBytes - 1;
-	fCurDataOffset = fNumValidDataBytes;
+        memmove(fTo, &fInputBuffer[1], fNumValidDataBytes - 1);
+        fFrameSize = fNumValidDataBytes - 1;
+        fCurDataOffset = fNumValidDataBytes;
       } else { // case 2
-	// We need to send the NAL unit data as FU packets.  Deliver the first
-	// packet now.  Note that we add "NAL header" and "FU header" bytes to the front
-	// of the packet (overwriting the existing "NAL header").
-	if (fHNumber == 264) {
-	  fInputBuffer[0] = (fInputBuffer[1] & 0xE0) | 28; // FU indicator
-	  fInputBuffer[1] = 0x80 | (fInputBuffer[1] & 0x1F); // FU header (with S bit)
-	} else { // 265
-	  u_int8_t nal_unit_type = (fInputBuffer[1]&0x7E)>>1;
-	  fInputBuffer[0] = (fInputBuffer[1] & 0x81) | (49<<1); // Payload header (1st byte)
-	  fInputBuffer[1] = fInputBuffer[2]; // Payload header (2nd byte)
-	  fInputBuffer[2] = 0x80 | nal_unit_type; // FU header (with S bit)
-	}
-	memmove(fTo, fInputBuffer, fMaxSize);
-	fFrameSize = fMaxSize;
-	fCurDataOffset += fMaxSize - 1;
-	fLastFragmentCompletedNALUnit = False;
+        // We need to send the NAL unit data as FU packets.  Deliver the first
+        // packet now.  Note that we add "NAL header" and "FU header" bytes to the front
+        // of the packet (overwriting the existing "NAL header").
+        if (fHNumber == 264) {
+          fInputBuffer[0] = (fInputBuffer[1] & 0xE0) | 28; // FU indicator
+          fInputBuffer[1] = 0x80 | (fInputBuffer[1] & 0x1F); // FU header (with S bit)
+        } else { // 265
+          u_int8_t nal_unit_type = (fInputBuffer[1] & 0x7E) >> 1;
+          fInputBuffer[0] = (fInputBuffer[1] & 0x81) | (49 << 1); // Payload header (1st byte)
+          fInputBuffer[1] = fInputBuffer[2]; // Payload header (2nd byte)
+          fInputBuffer[2] = 0x80 | nal_unit_type; // FU header (with S bit)
+        }
+        memmove(fTo, fInputBuffer, fMaxSize);
+        fFrameSize = fMaxSize;
+        fCurDataOffset += fMaxSize - 1;
+        fLastFragmentCompletedNALUnit = False;
       }
     } else { // case 3
       // We are sending this NAL unit data as FU packets.  We've already sent the
@@ -230,24 +230,24 @@ void H264or5Fragmenter::doGetNextFrame() {
       // bit if this is the last fragment.)
       unsigned numExtraHeaderBytes;
       if (fHNumber == 264) {
-	fInputBuffer[fCurDataOffset-2] = fInputBuffer[0]; // FU indicator
-	fInputBuffer[fCurDataOffset-1] = fInputBuffer[1]&~0x80; // FU header (no S bit)
-	numExtraHeaderBytes = 2;
+        fInputBuffer[fCurDataOffset - 2] = fInputBuffer[0]; // FU indicator
+        fInputBuffer[fCurDataOffset - 1] = fInputBuffer[1] & ~0x80; // FU header (no S bit)
+        numExtraHeaderBytes = 2;
       } else { // 265
-	fInputBuffer[fCurDataOffset-3] = fInputBuffer[0]; // Payload header (1st byte)
-	fInputBuffer[fCurDataOffset-2] = fInputBuffer[1]; // Payload header (2nd byte)
-	fInputBuffer[fCurDataOffset-1] = fInputBuffer[2]&~0x80; // FU header (no S bit)
-	numExtraHeaderBytes = 3;
+        fInputBuffer[fCurDataOffset - 3] = fInputBuffer[0]; // Payload header (1st byte)
+        fInputBuffer[fCurDataOffset - 2] = fInputBuffer[1]; // Payload header (2nd byte)
+        fInputBuffer[fCurDataOffset - 1] = fInputBuffer[2] & ~0x80; // FU header (no S bit)
+        numExtraHeaderBytes = 3;
       }
       unsigned numBytesToSend = numExtraHeaderBytes + (fNumValidDataBytes - fCurDataOffset);
       if (numBytesToSend > fMaxSize) {
-	// We can't send all of the remaining data this time:
-	numBytesToSend = fMaxSize;
-	fLastFragmentCompletedNALUnit = False;
+        // We can't send all of the remaining data this time:
+        numBytesToSend = fMaxSize;
+        fLastFragmentCompletedNALUnit = False;
       } else {
-	// This is the last fragment:
-	fInputBuffer[fCurDataOffset-1] |= 0x40; // set the E bit in the FU header
-	fNumTruncatedBytes = fSaveNumTruncatedBytes;
+        // This is the last fragment:
+        fInputBuffer[fCurDataOffset - 1] |= 0x40; // set the E bit in the FU header
+        fNumTruncatedBytes = fSaveNumTruncatedBytes;
       }
       memmove(fTo, &fInputBuffer[fCurDataOffset-numExtraHeaderBytes], numBytesToSend);
       fFrameSize = numBytesToSend;

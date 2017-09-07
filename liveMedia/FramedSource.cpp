@@ -39,7 +39,7 @@ Boolean FramedSource::isFramedSource() const {
 }
 
 Boolean FramedSource::lookupByName(UsageEnvironment& env, char const* sourceName,
-				   FramedSource*& resultSource) {
+    FramedSource*& resultSource) {
   resultSource = NULL; // unless we succeed
 
   MediaSource* source;

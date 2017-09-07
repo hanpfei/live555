@@ -28,8 +28,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 class H264or5VideoStreamFramer: public MPEGVideoStreamFramer {
 public:
   void getVPSandSPSandPPS(u_int8_t*& vps, unsigned& vpsSize,
-			  u_int8_t*& sps, unsigned& spsSize,
-			  u_int8_t*& pps, unsigned& ppsSize) const {
+      u_int8_t*& sps, unsigned& spsSize,
+      u_int8_t*& pps, unsigned& ppsSize) const {
     // Returns pointers to copies of the most recently seen VPS (video parameter set)
     // SPS (sequence parameter set) and PPS (picture parameter set) NAL units.
     // (NULL pointers are returned if the NAL units have not yet been seen.)
@@ -39,8 +39,8 @@ public:
   }
 
   void setVPSandSPSandPPS(u_int8_t* vps, unsigned vpsSize,
-			  u_int8_t* sps, unsigned spsSize,
-			  u_int8_t* pps, unsigned ppsSize) {
+      u_int8_t* sps, unsigned spsSize,
+      u_int8_t* pps, unsigned ppsSize) {
     // Assigns copies of the VPS, SPS and PPS NAL units.  If this function is not called,
     // then these NAL units are assigned only if/when they appear in the input stream.
     saveCopyOfVPS(vps, vpsSize);
