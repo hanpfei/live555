@@ -14,7 +14,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 **********/
 // "liveMedia"
-// Copyright (c) 1996-2017 Live Networks, Inc.  All rights reserved.
+// Copyright (c) 1996-2020 Live Networks, Inc.  All rights reserved.
 // A RTSP server
 // Implementation
 
@@ -391,12 +391,12 @@ static void lookForHeader(char const* headerName, char const* source, unsigned s
       for (unsigned j = i; j < sourceLen; ++j) {
 	if (source[j] == '\r' || source[j] == '\n') {
 	  // We've found the end of the line.  Copy it to the result (if it will fit):
-	  if (j-i+1 > resultMaxSize) break;
+	  if (j-i+1 > resultMaxSize) return; // it wouldn't fit
 	  char const* resultSource = &source[i];
 	  char const* resultSourceEnd = &source[j];
 	  while (resultSource < resultSourceEnd) *resultStr++ = *resultSource++;
 	  *resultStr = '\0';
-	  break;
+	  return;
 	}
       }
     }
@@ -541,8 +541,8 @@ Boolean RTSPServer::RTSPClientConnection
   }
   RTSPServer::RTSPClientConnection* prevClientConnection
     = (RTSPServer::RTSPClientConnection*)(fOurRTSPServer.fClientConnectionsForHTTPTunneling->Lookup(sessionCookie));
-  if (prevClientConnection == NULL) {
-    // There was no previous HTTP "GET" request; treat this "POST" request as bad:
+  if (prevClientConnection == NULL || prevClientConnection == this) {
+    // Either there was no previous HTTP "GET" request, or it was on the same connection; treat this "POST" request as bad:
     handleHTTPCmd_notSupported();
     fIsActive = False; // triggers deletion of ourself
     return False;
@@ -699,6 +699,7 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
     char cseq[RTSP_PARAM_STRING_MAX];
     char sessionIdStr[RTSP_PARAM_STRING_MAX];
     unsigned contentLength = 0;
+    Boolean playAfterSetup = False;
     fLastCRLF[2] = '\0'; // temporarily, for parsing
     Boolean parseSucceeded = parseRTSPRequestString((char*)fRequestBuffer, fLastCRLF+2 - fRequestBuffer,
 						    cmdName, sizeof cmdName,
@@ -708,7 +709,14 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
 						    sessionIdStr, sizeof sessionIdStr,
 						    contentLength);
     fLastCRLF[2] = '\r'; // restore its value
-    Boolean playAfterSetup = False;
+    // Check first for a bogus "Content-Length" value that would cause a pointer wraparound:
+    if (tmpPtr + 2 + contentLength < tmpPtr + 2) {
+#ifdef DEBUG
+      fprintf(stderr, "parseRTSPRequestString() returned a bogus \"Content-Length:\" value: 0x%x (%d)\n", contentLength, (int)contentLength);
+#endif
+      contentLength = 0;
+      parseSucceeded = False;
+    }
     if (parseSucceeded) {
 #ifdef DEBUG
       fprintf(stderr, "parseRTSPRequestString() succeeded, returning cmdName \"%s\", urlPreSuffix \"%s\", urlSuffix \"%s\", CSeq \"%s\", Content-Length %u, with %d bytes following the message.\n", cmdName, urlPreSuffix, urlSuffix, cseq, contentLength, ptr + newBytesRead - (tmpPtr + 2));
@@ -732,6 +740,9 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
 	// If the "OPTIONS" command included a "Session:" id for a session that doesn't exist,
 	// then treat this as an error:
 	if (requestIncludedSessionId && clientSession == NULL) {
+#ifdef DEBUG
+	  fprintf(stderr, "Calling handleCmd_sessionNotFound() (case 1)\n");
+#endif
 	  handleCmd_sessionNotFound();
 	} else {
 	  // Normal case:
@@ -775,6 +786,9 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
 	  clientSession->handleCmd_SETUP(this, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
 	  playAfterSetup = clientSession->fStreamAfterSETUP;
 	} else if (areAuthenticated) {
+#ifdef DEBUG
+	  fprintf(stderr, "Calling handleCmd_sessionNotFound() (case 2)\n");
+#endif
 	  handleCmd_sessionNotFound();
 	}
       } else if (strcmp(cmdName, "TEARDOWN") == 0
@@ -785,6 +799,9 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
 	if (clientSession != NULL) {
 	  clientSession->handleCmd_withinSession(this, cmdName, urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
 	} else {
+#ifdef DEBUG
+	  fprintf(stderr, "Calling handleCmd_sessionNotFound() (case 3)\n");
+#endif
 	  handleCmd_sessionNotFound();
 	}
       } else if (strcmp(cmdName, "REGISTER") == 0 || strcmp(cmdName, "DEREGISTER") == 0) {
@@ -894,6 +911,8 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
   }
 }
 
+#define SKIP_WHITESPACE while (*fields != '\0' && (*fields == ' ' || *fields == '\t')) ++fields
+
 static Boolean parseAuthorizationHeader(char const* buf,
 					char const*& username,
 					char const*& realm,
@@ -911,15 +930,28 @@ static Boolean parseAuthorizationHeader(char const* buf,
   
   // Then, run through each of the fields, looking for ones we handle:
   char const* fields = buf + 22;
-  while (*fields == ' ') ++fields;
   char* parameter = strDupSize(fields);
   char* value = strDupSize(fields);
-  while (1) {
-    value[0] = '\0';
-    if (sscanf(fields, "%[^=]=\"%[^\"]\"", parameter, value) != 2 &&
-	sscanf(fields, "%[^=]=\"\"", parameter) != 1) {
-      break;
-    }
+  char* p;
+  Boolean success;
+  do {
+    // Parse: <parameter>="<value>"
+    success = False;
+    parameter[0] = value[0] = '\0';
+    SKIP_WHITESPACE;
+    for (p = parameter; *fields != '\0' && *fields != ' ' && *fields != '\t' && *fields != '='; ) *p++ = *fields++;
+    SKIP_WHITESPACE;
+    if (*fields++ != '=') break; // parsing failed
+    *p = '\0'; // complete parsing <parameter>
+    SKIP_WHITESPACE;
+    if (*fields++ != '"') break; // parsing failed
+    for (p = value; *fields != '\0' && *fields != '"'; ) *p++ = *fields++;
+    if (*fields++ != '"') break; // parsing failed
+    *p = '\0'; // complete parsing <value>
+    SKIP_WHITESPACE;
+    success = True;
+
+    // Copy values for parameters that we understand:
     if (strcmp(parameter, "username") == 0) {
       username = strDup(value);
     } else if (strcmp(parameter, "realm") == 0) {
@@ -931,14 +963,12 @@ static Boolean parseAuthorizationHeader(char const* buf,
     } else if (strcmp(parameter, "response") == 0) {
       response = strDup(value);
     }
-    
-    fields += strlen(parameter) + 2 /*="*/ + strlen(value) + 1 /*"*/;
-    while (*fields == ',' || *fields == ' ') ++fields;
-        // skip over any separating ',' and ' ' chars
-    if (*fields == '\0' || *fields == '\r' || *fields == '\n') break;
-  }
+
+    // Check for a ',', indicating that more <parameter>="<value>" pairs follow:
+  } while (*fields++ == ',');
+
   delete[] parameter; delete[] value;
-  return True;
+  return success;
 }
 
 Boolean RTSPServer::RTSPClientConnection
@@ -1704,14 +1734,21 @@ void RTSPServer::RTSPClientSession
   
   // Create the "Range:" header that we'll send back in our response.
   // (Note that we do this after seeking, in case the seeking operation changed the range start time.)
+  char* rangeHeader;
   if (absStart != NULL) {
     // We're seeking by 'absolute' time:
+    char* rangeHeaderBuf;
+    
     if (absEnd == NULL) {
-      sprintf(buf, "Range: clock=%s-\r\n", absStart);
+      rangeHeaderBuf = new char[100 + strlen(absStart)]; // ample space
+      sprintf(rangeHeaderBuf, "Range: clock=%s-\r\n", absStart);
     } else {
-      sprintf(buf, "Range: clock=%s-%s\r\n", absStart, absEnd);
+      rangeHeaderBuf = new char[100 + strlen(absStart) + strlen(absEnd)]; // ample space
+      sprintf(rangeHeaderBuf, "Range: clock=%s-%s\r\n", absStart, absEnd);
     }
     delete[] absStart; delete[] absEnd;
+    rangeHeader = strDup(rangeHeaderBuf);
+    delete[] rangeHeaderBuf;
   } else {
     // We're seeking by relative (NPT) time:
     if (!sawRangeHeader || startTimeIsNow) {
@@ -1737,8 +1774,8 @@ void RTSPServer::RTSPClientSession
     } else {
       sprintf(buf, "Range: npt=%.3f-%.3f\r\n", rangeStart, rangeEnd);
     }
+    rangeHeader = strDup(buf);
   }
-  char* rangeHeader = strDup(buf);
   
   // Now, start streaming:
   for (i = 0; i < fNumStreamStates; ++i) {
